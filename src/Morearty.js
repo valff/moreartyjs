@@ -433,11 +433,11 @@ module.exports = function (React, DOM) {
             });
           } else {
             forceUpdate(rootComp);
+
             self._componentQueue.forEach(function (c) {
               forceUpdate(c);
               savePreviousState(c);
             });
-
             self._componentQueue = [];
           }
         });
