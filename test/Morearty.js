@@ -1457,24 +1457,26 @@ describe('Morearty', function () {
         });
       });
 
-      it('should always render top down', function (done) {
-        var ctx = createCtx();
-        var observedBinding = ctx.getBinding().sub('key');
-        var renderOrder = [];
+      it('should receive new props when observed binding changed', function (done) {
+        var initialState = IMap({ foo: 1 });
+        var ctx = createCtx(initialState);
+        var binding = ctx.getBinding();
+        var observedBinding = binding.sub('foo');
+
+        var subComponentState = null;
 
         var subComp = createClass({
           observedBindings: [observedBinding],
 
           render: function () {
-            renderOrder.push('sub');
+            subComponentState = this.props.foo;
             return null;
           },
         });
 
         var rootComp = createClass({
           render: function () {
-            renderOrder.push('root');
-            return React.createFactory(subComp)();
+            return React.createFactory(subComp)({ foo: binding.get('foo') });
           },
         });
 
@@ -1482,10 +1484,10 @@ describe('Morearty', function () {
         React.render(bootstrapComp(), global.document.getElementById('root'));
 
         waitRender(function () {
-          ctx.getBinding().set('key', 'value');
+          ctx.getBinding().set('foo', 2);
 
           waitRender(function () {
-            assert.deepEqual(renderOrder, ['root', 'sub', 'root', 'sub']);
+            assert.strictEqual(subComponentState, 2);
             done();
           });
         });
