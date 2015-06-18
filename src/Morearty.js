@@ -432,13 +432,13 @@ module.exports = function (React, DOM) {
               self._fullUpdateInProgress = false;
             });
           } else {
+            forceUpdate(rootComp);
             self._componentQueue.forEach(function (c) {
               forceUpdate(c);
               savePreviousState(c);
             });
-            self._componentQueue = [];
 
-            forceUpdate(rootComp);
+            self._componentQueue = [];
           }
         });
       };

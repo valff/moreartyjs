@@ -1457,6 +1457,40 @@ describe('Morearty', function () {
         });
       });
 
+      it('should always render top down', function (done) {
+        var ctx = createCtx();
+        var observedBinding = ctx.getBinding().sub('key');
+        var renderOrder = [];
+
+        var subComp = createClass({
+          observedBindings: [observedBinding],
+
+          render: function () {
+            renderOrder.push('sub');
+            return null;
+          },
+        });
+
+        var rootComp = createClass({
+          render: function () {
+            renderOrder.push('root');
+            return React.createFactory(subComp)();
+          },
+        });
+
+        var bootstrapComp = React.createFactory(ctx.bootstrap(rootComp));
+        React.render(bootstrapComp(), global.document.getElementById('root'));
+
+        waitRender(function () {
+          ctx.getBinding().set('key', 'value');
+
+          waitRender(function () {
+            assert.deepEqual(renderOrder, ['root', 'sub', 'root', 'sub']);
+            done();
+          });
+        });
+      });
+
       it('should support optional function syntax', function (done) {
         var initialState = IMap({ key1: 'value1', key2: 'value2' });
         var ctx = createCtx(initialState);
